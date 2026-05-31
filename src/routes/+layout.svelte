@@ -12,6 +12,6 @@
 	/></svelte:head
 >
 
-<div class="w-screen bg-accent-green-light-2/50">
+<div class="bg-accent-green-light-2/50">
 	{@render children()}
 </div>

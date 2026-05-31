@@ -18,7 +18,7 @@
 }
 
 html {
-	scrollbar-color: #7eca9c #1a1a1c;
+	scrollbar-color: var(--color-accent-green-light-1) #1a1a1c;
 	scrollbar-width: thin;
 }
 
