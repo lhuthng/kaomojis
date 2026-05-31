@@ -38,6 +38,16 @@ function getSuggestions(mood, allMoods, limit = 5) {
     .map((s) => s.mood);
 }
 
+export function OPTIONS() {
+  return new Response(null, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    }
+  });
+}
+
 export function GET({ params, url }) {
   const { mood } = params;
   const page = Number(url.searchParams.get('page') ?? 1);
@@ -54,12 +64,19 @@ export function GET({ params, url }) {
 				message: `Unknown mood: ${mood}`,
 				...(suggestions.length > 0 && { suggestions }),
 			},
-			{ status: 404 }
+			{ 
+				status: 404,
+				headers: { 'Access-Control-Allow-Origin': '*' }
+			}
 		);
   }
 
   const start = (page - 1) * limit;
   const results = all.slice(start, start + limit);
 
-  return json({ mood, results, total: all.length, page, limit });
+  return json(
+		{ mood, results, total: all.length, page, limit }, 
+		{ 
+			headers: { 'Access-Control-Allow-Origin': '*' }
+		});
 }
