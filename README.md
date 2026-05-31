@@ -56,11 +56,19 @@ Example response:
 }
 ```
 
-If a mood does not exist, the route returns a 404:
+If a mood does not exist, the route returns a 404. If the input loosely matches
+known moods — by prefix or similarity — the response includes up to 5 suggestions:
 
-```txt
-Unknown mood: {mood}
+```json
+{
+  "message": "Unknown mood: hap",
+  "suggestions": ["happy", "happiness", "hapless"]
+}
 ```
+
+Short prefixes work too — `j` returns `["joy", "jolly", ...]`.
+
+If there are no close matches, `suggestions` is omitted.
 
 ## Available moods
 
