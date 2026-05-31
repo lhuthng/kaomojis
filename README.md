@@ -56,7 +56,17 @@ Example response:
 }
 ```
 
-If a mood does not exist, the route returns a 404.
+If a mood does not exist, the route returns a 404:
+
+```txt
+Unknown mood: {mood}
+```
+
+## Available moods
+
+See all 39 mood categories: [`src/lib/kaomojis/data/`](./src/lib/kaomojis/data/)
+
+Each filename (without `.json`) is a valid `:mood` value you can pass to the API.
 
 ## Project structure
 
@@ -74,6 +84,8 @@ utils/
 ```
 
 ## Local development
+
+This project uses Bun. If you prefer npm, replace `bun` with `npm run` in all commands below.
 
 Install and run:
 
