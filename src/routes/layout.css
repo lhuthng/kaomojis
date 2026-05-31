@@ -1,1 +1,15 @@
 @import 'tailwindcss';
+
+@theme {
+	--color-accent-red: #ff5f57;
+	--color-accent-green: #28c840;
+	--color-accent-green-light-1: #7eca9c;
+	--color-accent-green-light-2: #7eca9c;
+	--color-accent-yellow: #febc2e;
+	--color-dark: #1a1a1c;
+	--color-dark-light-1: #131315;
+	--color-dark-light-2: #2a2a2c;
+	--color-dark-light-3: #2e2e30;
+	--color-cream: #f0ece3;
+	--color-cream-2: #e8e4db;
+}
