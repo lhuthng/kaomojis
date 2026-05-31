@@ -5,6 +5,9 @@
 	--color-accent-green: #28c840;
 	--color-accent-green-light-1: #7eca9c;
 	--color-accent-green-light-2: #7eca9c;
+	--color-accent-green-light-3: #c8f0a8;
+	--color-accent-pink: #e2b7cf;
+	--color-accent-cyan: #9ed7d8;
 	--color-accent-yellow: #febc2e;
 	--color-dark: #1a1a1c;
 	--color-dark-light-1: #131315;
@@ -12,4 +15,36 @@
 	--color-dark-light-3: #2e2e30;
 	--color-cream: #f0ece3;
 	--color-cream-2: #e8e4db;
+}
+
+html {
+	scrollbar-color: #7eca9c #1a1a1c;
+	scrollbar-width: thin;
+}
+
+body::-webkit-scrollbar {
+	width: 14px;
+	height: 14px;
+}
+
+body::-webkit-scrollbar-track {
+	background: linear-gradient(180deg, #131315, #1a1a1c);
+	border-left: 1px solid #2a2a2c;
+}
+
+body::-webkit-scrollbar-thumb {
+	background:
+		linear-gradient(180deg, rgba(126, 202, 156, 0.95), rgba(126, 202, 156, 0.68)),
+		#7eca9c;
+	border: 2px solid #1a1a1c;
+	border-radius: 2px;
+	box-shadow: inset 0 0 0 1px rgba(240, 236, 227, 0.12);
+}
+
+body::-webkit-scrollbar-corner {
+	background: #1a1a1c;
+}
+
+a {
+	text-underline-offset: 3px;
 }

@@ -1,42 +1,171 @@
-# sv
+# Kaomoji API (ﾉ◕ヮ◕)ﾉ\*:･ﾟ✧
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Tiny SvelteKit app that serves a searchable kaomoji dataset as JSON.
 
-## Creating a project
+Live version: https://kaomoji-search.netlify.app/
 
-If you're seeing this, you've probably already done this step. Congrats!
+## What this repo does
 
-```sh
-# create a new project
-npx sv create my-app
+- Serves mood-based kaomoji JSON from the route `/:mood`
+- Stores the dataset as plain files in `src/lib/kaomojis/data/`
+- Loads every JSON file with `import.meta.glob(...)`
+- Includes a scraper for refreshing the dataset from https://kaomoji.you/en/
+
+Current dataset size:
+
+- 39 mood categories
+- 793 kaomojis
+- 0 databases
+
+## API
+
+Base URL:
+
+```txt
+https://kaomoji-search.netlify.app
 ```
 
-To recreate this project with the same configuration:
+Route:
 
-```sh
-# recreate this project
-bun x sv@0.15.3 create --template minimal --no-types --add prettier tailwindcss="plugins:none" sveltekit-adapter="adapter:netlify" eslint --install bun .
+```txt
+GET /:mood
 ```
 
-## Developing
+Optional query params:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+| Param   | Default | Meaning                  |
+| ------- | ------- | ------------------------ |
+| `page`  | `1`     | Result page to return    |
+| `limit` | `20`    | Number of items per page |
 
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
+Example request:
 
 ```sh
-npm run build
+curl "https://kaomoji-search.netlify.app/joy?page=1&limit=5"
 ```
 
-You can preview the production build with `npm run preview`.
+Example response:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```json
+{
+	"mood": "joy",
+	"results": ["(* ^ ω ^)", "(´ ∀ ` *)", "٩(◕‿◕｡)۶", "☆*:.｡.o(≧▽≦)o.｡.:*☆", "(o^▽^o)"],
+	"total": 41,
+	"page": 1,
+	"limit": 5
+}
+```
+
+If a mood does not exist, the route returns a 404.
+
+## Project structure
+
+```txt
+src/
+	lib/
+		kaomojis/
+			data/              one JSON file per mood
+			index.js           eager JSON loader
+	routes/
+		+page.svelte         homepage just for fun
+		[mood]/+server.js    JSON endpoint
+utils/
+	scrape-kaomoji-dot-you.mjs
+```
+
+## Local development
+
+Install and run:
+
+```sh
+bun install
+bun run dev
+```
+
+Build for production:
+
+```sh
+bun run build
+```
+
+Preview the production build locally:
+
+```sh
+bun run preview
+```
+
+## Only want the data?
+
+The easiest path is to use the JSON files directly from:
+
+```txt
+src/lib/kaomojis/data/
+```
+
+Each file contains a plain JSON array of kaomojis for one mood. Example:
+
+```json
+["(╥﹏╥)", "(っ˘̩╭╮˘̩)っ", "(ノ_<、)"]
+```
+
+If you only need one category, copy the single file you want.
+
+If you want the whole dataset bundled elsewhere, you can also run the scraper and write to your own directory.
+
+## Only want the scraper?
+
+The scraper lives here:
+
+```txt
+utils/scrape-kaomoji-dot-you.mjs
+```
+
+Run it without writing files to print everything to stdout:
+
+```sh
+bun run scrape
+```
+
+Write one JSON file per category:
+
+```sh
+bun run scrape -- -o ./tmp/kaomojis
+```
+
+Write one combined file instead:
+
+```sh
+bun run scrape -- -o ./tmp/kaomojis --single
+```
+
+Show scraper help:
+
+```sh
+bun run scrape -- --help
+```
+
+## How it works
+
+`src/lib/kaomojis/index.js` imports every JSON file eagerly and builds an object keyed by filename.
+
+`src/routes/[mood]/+server.js` reads `params.mood`, slices the array using `page` and `limit`, and returns JSON in this shape:
+
+```json
+{
+	"mood": "joy",
+	"results": [],
+	"total": 0,
+	"page": 1,
+	"limit": 20
+}
+```
+
+That means the storage model stays simple and deploys cleanly on Netlify.
+
+## Source and credits
+
+- Data source: https://kaomoji.you/en/
+- Live site: https://kaomoji-search.netlify.app/
+- Built with SvelteKit, Tailwind CSS v4, and the Netlify adapter
+
+If you want to add a new mood manually, drop a new JSON array into `src/lib/kaomojis/data/` and the loader will pick it up automatically ヽ(・∀・)ﾉ

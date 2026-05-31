@@ -32,7 +32,7 @@
 			<span class="ml-1 text-xs tracking-wider text-gray-600">{filename}</span>
 		</div>
 		<pre
-			class="text-accent-green-light-3 m-0 overflow-x-auto p-4 font-['Space_Mono'] text-[13px] leading-relaxed"><code
+			class="m-0 overflow-x-auto p-4 font-['Space_Mono'] text-[13px] leading-relaxed text-accent-green-light-3"><code
 				>{code}</code
 			></pre>
 	</div>
@@ -140,7 +140,7 @@
 						<tr class="border-b border-dashed border-dark">
 							<td class="py-2.5 pr-8 text-cream-2"
 								><code
-									class="text-accent-green-light-3 rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs"
+									class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 									>{p}</code
 								></td
 							>
@@ -197,18 +197,18 @@
 				>
 				— stored as plain
 				<code
-					class="text-accent-green-light-3 rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs"
+					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>.json</code
 				> files, one per mood. no database. no magic.
 			</p>
 			<p class="mt-3 text-sm leading-relaxed text-gray-400">
 				want to add a mood? open a PR and drop a new <code
-					class="text-accent-green-light-3 rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs"
+					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>moodname.json</code
 				>
 				in
 				<code
-					class="text-accent-green-light-3 rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs"
+					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>src/lib/kaomojis/data/</code
 				>. it's just a json array. even your grandma could do it {@render kaomoji('(╯°□°）╯')}
 			</p>
