@@ -19,8 +19,10 @@
 	<title>Kaomoji-API — ( ﾟ∀ﾟ)</title>
 </svelte:head>
 
-{#snippet kaomoji(text)}
-	<span class="whitespace-nowrap">{text}</span>
+{#snippet kaomoji(text, className)}
+	<span class={className} class:whitespace-nowrap={true}>
+		{text}
+	</span>
 {/snippet}
 
 {#snippet codeblock(filename, code)}
@@ -59,13 +61,17 @@
 		</h1>
 		<p class="mb-8 text-sm leading-relaxed text-gray-400">
 			a dead-simple api to search japanese emoticons by mood<br />
-			because sometimes words just aren't enough {@render kaomoji('(´；ω；｀)')}
+			because sometimes words just aren't enough {@render kaomoji('(´；ω；｀)', 'text-cream')}
 		</p>
 		<div class="flex flex-wrap items-center gap-8">
 			{@render stat(total > 0 ? total.toLocaleString() : '...', 'kaomoji')}
-			<span class="-mt-2 text-2xl text-dark-light-3">{@render kaomoji('ヽ(´▽`)/')}</span>
+			<span class="-mt-2 text-2xl text-dark-light-3"
+				>{@render kaomoji('ヽ(´▽`)/', 'text-accent-red')}</span
+			>
 			{@render stat(categories.length > 0 ? categories.length : '...', 'moods')}
-			<span class="-mt-2 text-2xl text-dark-light-3">{@render kaomoji('(ﾉ´ヮ`)ﾉ')}</span>
+			<span class="-mt-2 text-2xl text-dark-light-3"
+				>{@render kaomoji('(ﾉ´ヮ`)ﾉ', 'text-accent-red')}</span
+			>
 			{@render stat(0, 'databases')}
 		</div>
 	</header>
@@ -81,7 +87,10 @@
 				> usage
 			</h2>
 			<p class="mb-4 text-sm leading-relaxed text-gray-400">
-				hit the api like this. no auth, no keys, no nonsense. just vibes (・ω・)b
+				hit the api like this. no auth, no keys, no nonsense. just vibes {@render kaomoji(
+					'(・ω・)b',
+					'text-accent-green'
+				)}
 			</p>
 
 			<div class="mb-4 space-y-2">
@@ -125,7 +134,7 @@
 				> params
 			</h2>
 			<p class="mb-4 text-sm leading-relaxed text-gray-400">
-				two optional query params, nothing else {@render kaomoji('(￣▽￣)')}
+				two optional query params, nothing else {@render kaomoji('(￣▽￣)', 'text-accent-green')}
 			</p>
 			<table class="w-full border-collapse text-sm">
 				<thead>
@@ -166,7 +175,7 @@
 				> moods
 			</h2>
 			<p class="mb-4 text-sm leading-relaxed text-gray-400">
-				all available categories. more via PRs {@render kaomoji('(^ー^)v')}
+				all available categories. more via PRs {@render kaomoji('(^ー^)v', 'text-cream')}
 			</p>
 			<div class="flex flex-wrap gap-2">
 				{#each categories.length ? categories : ['happy', 'sad', 'angry', 'love', 'cat', 'cry', 'surprised', 'shy', 'cool', 'sleepy'] as cat}
@@ -204,13 +213,16 @@
 			<p class="mt-3 text-sm leading-relaxed text-gray-400">
 				want to add a mood? open a PR and drop a new <code
 					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
-					>moodname.json</code
+					>{'<moodname>.json'}</code
 				>
 				in
 				<code
 					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>src/lib/kaomojis/data/</code
-				>. it's just a json array. even your grandma could do it {@render kaomoji('(╯°□°）╯')}
+				>. it's just a json array. even your grandma could do it {@render kaomoji(
+					'(╯°□°）╯',
+					'text-cream'
+				)}
 			</p>
 		</section>
 
@@ -235,7 +247,10 @@ bun run dev`
 
 	<footer class="mt-8 border-t border-dashed border-dark-light-3 pt-8">
 		<p class="mb-1 text-xs text-gray-600">
-			made with {@render kaomoji('(╯°□°）╯')} and then later with {@render kaomoji('(ﾉ´ヮ`)ﾉ*: ･ﾟ')}
+			made with {@render kaomoji('(╯°□°）╯', 'text-cream')} and then later with {@render kaomoji(
+				'(ﾉ´ヮ`)ﾉ*: ･ﾟ',
+				'text-cream'
+			)}
 		</p>
 		<div class="flex items-center gap-3 text-xs text-gray-600">
 			<a
