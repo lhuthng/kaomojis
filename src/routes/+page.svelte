@@ -252,16 +252,27 @@ bun run dev`
 				'text-cream'
 			)}
 		</p>
-		<div class="flex items-center gap-3 text-xs text-gray-600">
+		<div class="flex items-center gap-3 text-xs text-gray-600 not-md:flex-wrap">
+			<a href="https://github.com/lhuthng" target="_blank" class="text-accent-green-light-1"
+				>author</a
+			>
+			<span>·</span>
 			<a
 				href="https://github.com/lhuthng/kaomojis"
 				target="_blank"
 				class="text-accent-green-light-1">github</a
 			>
 			<span>·</span>
-			<a href="https://kaomoji.you/en/" target="_blank" class="text-accent-green-light-1"
-				>data source</a
-			>
+			<span>
+				<a href="https://kaomoji.you/en/" target="_blank" class="text-accent-green-light-1"
+					>data source
+				</a>
+				(Thanks to:
+				<a class="text-accent-green-light-3" href="mailto:innocentsmilex@gmail.com"
+					>innocentsmilex@gmail.com</a
+				>
+				)
+			</span>
 			<span>·</span>
 			{#if randomCat}
 				<a href="/{randomCat}" target="_blank" class="text-accent-green-light-1">try /{randomCat}</a
