@@ -61,8 +61,8 @@ known moods — by prefix or similarity — the response includes up to 5 sugges
 
 ```json
 {
-  "message": "Unknown mood: hap",
-  "suggestions": ["happy", "happiness", "hapless"]
+	"message": "Unknown mood: hap",
+	"suggestions": ["happy", "happiness", "hapless"]
 }
 ```
 
