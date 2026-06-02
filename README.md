@@ -57,18 +57,22 @@ Example response:
 ```
 
 If a mood does not exist, the route returns a 404. If the input loosely matches
-known moods — by prefix or similarity — the response includes up to 5 suggestions:
+known moods or supported aliases — by prefix or similarity — the response includes up to 5 suggestions:
 
 ```json
 {
 	"message": "Unknown mood: hap",
-	"suggestions": ["happy", "happiness", "hapless"]
+	"suggestions": ["happy"]
 }
 ```
 
-Short prefixes work too — `j` returns `["joy", "jolly", ...]`.
+Short prefixes work too — `j` returns `["joy"]`.
 
 If there are no close matches, `suggestions` is omitted.
+
+Common aliases like `happy`, `sad`, `sleepy`, `shy`, `angry`, and `cry` resolve to
+their canonical mood categories automatically. For example, `GET /happy` returns
+the `joy` dataset.
 
 ## Available moods
 
@@ -84,6 +88,7 @@ src/
 		kaomojis/
 			data/              one JSON file per mood
 			index.js           eager JSON loader
+			lookup.js          alias resolution and suggestion helper
 	routes/
 		+page.svelte         homepage just for fun
 		[mood]/+server.js    JSON endpoint
@@ -168,7 +173,9 @@ bun run scrape -- --help
 
 `src/lib/kaomojis/index.js` imports every JSON file eagerly and builds an object keyed by filename.
 
-`src/routes/[mood]/+server.js` reads `params.mood`, slices the array using `page` and `limit`, and returns JSON in this shape:
+`src/routes/[mood]/+server.js` reads `params.mood`, resolves aliases like `happy`
+or `sleepy` to their canonical mood, slices the array using `page` and `limit`,
+and returns JSON in this shape:
 
 ```json
 {

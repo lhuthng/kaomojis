@@ -1,10 +1,9 @@
 import { json } from '@sveltejs/kit';
 import { kaomojis } from '$lib/kaomojis';
+import { getSuggestions, maxMoodLength, resolveMood } from '$lib/kaomojis/lookup';
 
-// Calculate the maximum length of a valid mood key dynamically.
-// E.g., 'dissatisfaction' is 15. 15 * 1.5 = 22.5, rounding up to 23.
-const longestKeyLength = Math.max(...Object.keys(kaomojis).map((k) => k.length), 0);
-const maxAllowedLength = Math.ceil(longestKeyLength * 1.5);
+// Calculate the maximum length of any recognized mood name or synonym.
+const maxAllowedLength = Math.ceil(maxMoodLength * 1.5);
 
 // Sliding window rate limiter state
 const ipRequests = new Map(); // ip -> Array of timestamps (ms)
@@ -41,43 +40,6 @@ function isRateLimited(ip) {
 	return false;
 }
 
-function levenshtein(a, b) {
-	const dp = Array.from({ length: a.length + 1 }, (_, i) =>
-		Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
-	);
-
-	for (let i = 1; i <= a.length; i++)
-		for (let j = 1; j <= b.length; j++)
-			dp[i][j] =
-				a[i - 1] === b[j - 1]
-					? dp[i - 1][j - 1]
-					: 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-
-	return dp[a.length][b.length];
-}
-
-function getSuggestions(mood, allMoods, limit = 5) {
-	const input = mood.toLowerCase();
-
-	return allMoods
-		.map((m) => {
-			const candidate = m.toLowerCase();
-			const distance = levenshtein(input, candidate);
-			const score = 1 - distance / Math.max(input.length, candidate.length);
-			const prefixMatch = candidate.startsWith(input);
-
-			return { mood: m, score, prefixMatch };
-		})
-		.filter((s) => s.prefixMatch || s.score >= 0.4)
-		.sort((a, b) => {
-			// Prefix matches always rank first
-			if (a.prefixMatch !== b.prefixMatch) return a.prefixMatch ? -1 : 1;
-			return b.score - a.score;
-		})
-		.slice(0, limit)
-		.map((s) => s.mood);
-}
-
 export function OPTIONS() {
 	return new Response(null, {
 		headers: {
@@ -89,7 +51,7 @@ export function OPTIONS() {
 }
 
 export function GET({ params, url, getClientAddress }) {
-	const { mood } = params;
+	const { mood: requestedMood } = params;
 	const page = Number(url.searchParams.get('page') ?? 1);
 	const limit = Number(url.searchParams.get('limit') ?? 20);
 
@@ -115,7 +77,7 @@ export function GET({ params, url, getClientAddress }) {
 	}
 
 	// 2. Input Length Check
-	if (mood && mood.length > maxAllowedLength) {
+	if (requestedMood && requestedMood.length > maxAllowedLength) {
 		return json(
 			{
 				message: `Request parameter 'mood' too long. Maximum allowed length is ${maxAllowedLength} characters.`
@@ -128,7 +90,9 @@ export function GET({ params, url, getClientAddress }) {
 	}
 
 	// 3. Cache Lookup
-	const cacheKey = `${mood}:${page}:${limit}`;
+	const resolvedMood = resolveMood(requestedMood);
+	const cacheMoodKey = resolvedMood ?? requestedMood;
+	const cacheKey = `${cacheMoodKey}:${page}:${limit}`;
 	if (Math.random() < 0.1) {
 		cleanCache();
 	}
@@ -141,13 +105,13 @@ export function GET({ params, url, getClientAddress }) {
 		});
 	}
 
-	const all = kaomojis[mood];
+	const all = resolvedMood ? kaomojis[resolvedMood] : undefined;
 
 	if (!all) {
-		const suggestions = getSuggestions(mood, Object.keys(kaomojis));
+		const suggestions = getSuggestions(requestedMood, Object.keys(kaomojis));
 
 		const errorData = {
-			message: `Unknown mood: ${mood}`,
+			message: `Unknown mood: ${requestedMood}`,
 			...(suggestions.length > 0 && { suggestions })
 		};
 
@@ -165,7 +129,7 @@ export function GET({ params, url, getClientAddress }) {
 
 	const start = (page - 1) * limit;
 	const results = all.slice(start, start + limit);
-	const responseData = { mood, results, total: all.length, page, limit };
+	const responseData = { mood: resolvedMood, results, total: all.length, page, limit };
 
 	cache.set(cacheKey, {
 		data: responseData,

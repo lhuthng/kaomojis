@@ -61,6 +61,7 @@
 		</h1>
 		<p class="mb-8 text-sm leading-relaxed text-gray-400">
 			a dead-simple api to search japanese emoticons by mood<br />
+			aliases like /happy, /sad, and /sleepy work too<br />
 			because sometimes words just aren't enough {@render kaomoji('(´；ω；｀)', 'text-cream')}
 		</p>
 		<div class="flex flex-wrap items-center gap-8">
@@ -115,7 +116,7 @@
 			{@render codeblock(
 				'example response',
 				`{
-  "mood": "happy",
+  "mood": "joy",
   "results": ["(◠‿◠)", "٩(◕‿◕)۶", "ヽ(\`▽\`)/"],
   "total": 94,
   "page": 1,
