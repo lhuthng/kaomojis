@@ -1,8 +1,18 @@
 <script>
-	import { kaomojis } from '$lib/kaomojis';
 	import { onMount } from 'svelte';
 
-	const categories = Object.keys(kaomojis);
+	const categories = [
+		'joy',
+		'happy',
+		'sadness',
+		'sad',
+		'love',
+		'cat',
+		'surprise',
+		'shy',
+		'sleeping',
+		'sleepy'
+	];
 
 	let randomCat = $state(categories[Math.floor(Math.random() * categories.length)]);
 

@@ -1,15 +1,22 @@
 <script>
-	import { kaomojis } from '$lib/kaomojis';
 	import { onMount } from 'svelte';
 
-	const categories = Object.keys(kaomojis);
-	const total = categories.reduce((sum, cat) => sum + kaomojis[cat].length, 0);
+	let { data } = $props();
 
-	let randomCat = $state(categories[Math.floor(Math.random() * categories.length)]);
+	const categories = $derived(data.categories);
+	const moods = $derived(data.moods);
+	const total = $derived(data.total);
+	const aliasCount = $derived(data.aliases.length);
+
+	function pickRandomMood() {
+		return data.moods[Math.floor(Math.random() * data.moods.length)] ?? null;
+	}
+
+	let randomCat = $state(pickRandomMood());
 
 	onMount(() => {
 		const id = setInterval(() => {
-			randomCat = categories[Math.floor(Math.random() * categories.length)];
+			randomCat = pickRandomMood();
 		}, 5000);
 		return () => clearInterval(id);
 	});
@@ -69,11 +76,11 @@
 			<span class="-mt-2 text-2xl text-dark-light-3"
 				>{@render kaomoji('ヽ(´▽`)/', 'text-accent-red')}</span
 			>
-			{@render stat(categories.length > 0 ? categories.length : '...', 'moods')}
+			{@render stat(categories.length > 0 ? categories.length : '...', 'categories')}
 			<span class="-mt-2 text-2xl text-dark-light-3"
 				>{@render kaomoji('(ﾉ´ヮ`)ﾉ', 'text-accent-red')}</span
 			>
-			{@render stat(0, 'databases')}
+			{@render stat(aliasCount > 0 ? aliasCount : '...', 'aliases')}
 		</div>
 	</header>
 
@@ -173,13 +180,16 @@
 				<span
 					class="font-['Space_Mono'] text-xs font-normal tracking-wider text-accent-green-light-1 not-italic"
 					>03</span
-				> moods
+				> moods + aliases
 			</h2>
 			<p class="mb-4 text-sm leading-relaxed text-gray-400">
-				all available categories. more via PRs {@render kaomoji('(^ー^)v', 'text-cream')}
+				canonical categories plus recognized aliases. more via PRs {@render kaomoji(
+					'(^ー^)v',
+					'text-cream'
+				)}
 			</p>
 			<div class="flex flex-wrap gap-2">
-				{#each categories.length ? categories : ['happy', 'sad', 'angry', 'love', 'cat', 'cry', 'surprised', 'shy', 'cool', 'sleepy'] as cat}
+				{#each moods.length ? moods : ['happy', 'joy', 'sad', 'angry', 'love', 'cat', 'cry', 'surprised', 'shy', 'sleepy'] as cat}
 					<a
 						href="/{cat}"
 						class="rounded-sm border border-dark-light-2 px-3 py-1.5 text-xs text-gray-400 no-underline transition-colors hover:border-accent-green-light-2/25 hover:text-accent-green-light-1"
@@ -205,7 +215,8 @@
 					target="_blank"
 					class="text-accent-green-light-1">kaomoji.you</a
 				>
-				and <a
+				and
+				<a
 					href="https://kaomojikuma.com/positive-emotions-japanese-emoticons/"
 					target="_blank"
 					class="text-accent-green-light-1">kaomojikuma</a
@@ -216,8 +227,8 @@
 				> files plus a shared alias map. no database. no magic.
 			</p>
 			<p class="mt-3 text-sm leading-relaxed text-gray-400">
-				want to add a new source or refresh an old one? run a scraper, run the organizer, then
-				open a PR. if you're editing by hand, drop a new <code
+				want to add a new source or refresh an old one? run a scraper, run the organizer, then open
+				a PR. if you're editing by hand, drop a new <code
 					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>{'<moodname>.json'}</code
 				>
