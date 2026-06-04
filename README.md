@@ -9,13 +9,9 @@ Live version: https://kaomoji-search.netlify.app/
 - Serves mood-based kaomoji JSON from the route `/:mood`
 - Stores the dataset as plain files in `src/lib/kaomojis/data/`
 - Loads every JSON file with `import.meta.glob(...)`
-- Includes a scraper for refreshing the dataset from https://kaomoji.you/en/
+- Includes multiple scrapers plus an organizer pipeline for refreshing the dataset from multiple sources
 
-Current dataset size:
-
-- 39 mood categories
-- 793 kaomojis
-- 0 databases
+Current dataset size is whatever is currently present in `src/lib/kaomojis/data/`.
 
 ## API
 
@@ -86,6 +82,7 @@ Each filename (without `.json`) is a valid `:mood` value you can pass to the API
 src/
 	lib/
 		kaomojis/
+			aliases.json       shared alias -> canonical mood map
 			data/              one JSON file per mood
 			index.js           eager JSON loader
 			lookup.js          alias resolution and suggestion helper
@@ -94,6 +91,9 @@ src/
 		[mood]/+server.js    JSON endpoint
 utils/
 	scrape-kaomoji-dot-you.mjs
+	scrape-kaomojikuma-dot-com.mjs
+	scrape-output.mjs
+	organize-kaomojis.mjs
 ```
 
 ## Local development
@@ -135,47 +135,92 @@ Each file contains a plain JSON array of kaomojis for one mood. Example:
 
 If you only need one category, copy the single file you want.
 
-If you want the whole dataset bundled elsewhere, you can also run the scraper and write to your own directory.
+Aliases live separately in:
 
-## Only want the scraper?
+```txt
+src/lib/kaomojis/aliases.json
+```
 
-The scraper lives here:
+If you want the whole dataset bundled elsewhere, you can also run a scraper and write categories, aliases, and optional metadata to your own paths.
+
+## Scraping
+
+The raw scrapers live here:
 
 ```txt
 utils/scrape-kaomoji-dot-you.mjs
+utils/scrape-kaomojikuma-dot-com.mjs
 ```
 
-Run it without writing files to print everything to stdout:
+The organizer that merges raw scrape outputs into canonical categories lives here:
+
+```txt
+utils/organize-kaomojis.mjs
+```
+
+### Quick commands
+
+Scrape `kaomoji.you` to stdout:
 
 ```sh
 bun run scrape
 ```
 
-Write one JSON file per category:
+Scrape `kaomoji.you` to one file per raw category:
 
 ```sh
 bun run scrape -- -o ./tmp/kaomojis
 ```
 
-Write one combined file instead:
+Scrape `kaomoji.you` to one combined file:
 
 ```sh
 bun run scrape -- -o ./tmp/kaomojis --single
 ```
 
-Show scraper help:
+Scrape `kaomojikuma` positive emotions to one combined raw file with aliases and metadata:
+
+```sh
+bun run scrape:kuma -- -o ./tmp/kuma --single --meta
+```
+
+Organize one or more raw scrape outputs into canonical category files plus shared aliases:
+
+```sh
+bun run organize -- --input ./tmp/kaomojis/all-kaomoji.json
+bun run organize -- --input ./tmp/kuma/all-kaomoji.json
+bun run organize -- --input ./tmp/kaomojis/all-kaomoji.json --input ./tmp/kuma/all-kaomoji.json
+```
+
+Write aliases or metadata to custom files during scraping:
+
+```sh
+bun run scrape -- --aliases-output ./tmp/aliases.json
+bun run scrape:kuma -- --meta-output ./tmp/kuma-meta.json
+```
+
+Show help:
 
 ```sh
 bun run scrape -- --help
+bun run scrape:kuma -- --help
+bun run organize -- --help
 ```
+
+### Recommended workflow
+
+1. Run one or more raw scrapers into `./tmp/...`.
+2. Run `bun run organize` with those raw outputs.
+3. Review the updated category files in `src/lib/kaomojis/data/` and alias map in `src/lib/kaomojis/aliases.json`.
+4. Build or test the app.
 
 ## How it works
 
 `src/lib/kaomojis/index.js` imports every JSON file eagerly and builds an object keyed by filename.
 
 `src/routes/[mood]/+server.js` reads `params.mood`, resolves aliases like `happy`
-or `sleepy` to their canonical mood, slices the array using `page` and `limit`,
-and returns JSON in this shape:
+or `sleepy` to their canonical mood using `src/lib/kaomojis/aliases.json`, slices
+the array using `page` and `limit`, and returns JSON in this shape:
 
 ```json
 {
@@ -189,9 +234,33 @@ and returns JSON in this shape:
 
 That means the storage model stays simple and deploys cleanly on Netlify.
 
+## Scraper pipeline
+
+Scrapers should stay source-truthful. They should not know your canonical mood map.
+
+- A scraper outputs raw source categories plus any source-level alias groupings it can infer.
+- `utils/organize-kaomojis.mjs` reads those raw outputs, checks `src/lib/kaomojis/aliases.json`,
+  chooses a canonical category when one of the grouped terms is already mapped, merges kaomojis
+  into the right category JSON file, and fills in missing alias mappings for the rest of the group.
+
+Example:
+
+- scraper output: `happy`
+- existing alias map: `happy -> joy`
+- organizer result: append those kaomojis to `joy.json`
+
+Example:
+
+- scraper output group: `blushing`, `flattered`, `shy`
+- existing alias map contains only `shy -> embarrassment`
+- organizer result: append the group to `embarrassment.json` and add
+  `blushing -> embarrassment` and `flattered -> embarrassment`
+
 ## Source and credits
 
-- Data source: https://kaomoji.you/en/
+- Data sources:
+  - https://kaomoji.you/en/
+  - https://kaomojikuma.com/positive-emotions-japanese-emoticons/
 - Live site: https://kaomoji-search.netlify.app/
 - Built with SvelteKit, Tailwind CSS v4, and the Netlify adapter
 

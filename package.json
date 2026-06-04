@@ -8,6 +8,8 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"scrape": "node utils/scrape-kaomoji-dot-you.mjs",
+		"scrape:kuma": "node utils/scrape-kaomojikuma-dot-com.mjs",
+		"organize": "node utils/organize-kaomojis.mjs",
 		"prepare": "svelte-kit sync || echo ''",
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write ."

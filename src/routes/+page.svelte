@@ -205,14 +205,19 @@
 					target="_blank"
 					class="text-accent-green-light-1">kaomoji.you</a
 				>
-				— stored as plain
+				and <a
+					href="https://kaomojikuma.com/positive-emotions-japanese-emoticons/"
+					target="_blank"
+					class="text-accent-green-light-1">kaomojikuma</a
+				>. raw scrape outputs get organized into plain
 				<code
 					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>.json</code
-				> files, one per mood. no database. no magic.
+				> files plus a shared alias map. no database. no magic.
 			</p>
 			<p class="mt-3 text-sm leading-relaxed text-gray-400">
-				want to add a mood? open a PR and drop a new <code
+				want to add a new source or refresh an old one? run a scraper, run the organizer, then
+				open a PR. if you're editing by hand, drop a new <code
 					class="rounded-sm border border-dark-light-2 bg-dark px-1.5 py-0.5 text-xs text-accent-green-light-3"
 					>{'<moodname>.json'}</code
 				>
@@ -264,16 +269,15 @@ bun run dev`
 				class="text-accent-green-light-1">github</a
 			>
 			<span>·</span>
-			<span>
-				<a href="https://kaomoji.you/en/" target="_blank" class="text-accent-green-light-1"
-					>data source
-				</a>
-				(Thanks to:
-				<a class="text-accent-green-light-3" href="mailto:innocentsmilex@gmail.com"
-					>innocentsmilex@gmail.com</a
-				>
-				)
-			</span>
+			<a href="https://kaomoji.you/en/" target="_blank" class="text-accent-green-light-1"
+				>kaomoji.you</a
+			>
+			<span>·</span>
+			<a
+				href="https://kaomojikuma.com/positive-emotions-japanese-emoticons/"
+				target="_blank"
+				class="text-accent-green-light-1">kaomojikuma</a
+			>
 			<span>·</span>
 			{#if randomCat}
 				<a href="/{randomCat}" target="_blank" class="text-accent-green-light-1">try /{randomCat}</a

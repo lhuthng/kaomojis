@@ -27,3 +27,6 @@ vite.config.ts.timestamp-*
 
 # Package manager lock files
 bun.lock
+
+# Tempory folder
+tmp/

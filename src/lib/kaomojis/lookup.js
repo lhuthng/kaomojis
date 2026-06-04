@@ -1,83 +1,5 @@
+import aliasesData from './aliases.json';
 import { kaomojis } from './index.js';
-
-const aliasToMood = {
-	angry: 'anger',
-	annoyed: 'dissatisfaction',
-	aro: 'love',
-	astonished: 'surprise',
-	awkward: 'embarrassment',
-	bashful: 'embarrassment',
-	bear: 'bear',
-	bewildered: 'confusion',
-	bored: 'indifference',
-	bunny: 'rabbit',
-	cat: 'cat',
-	cheerful: 'joy',
-	comforting: 'sympathy',
-	confused: 'confusion',
-	crush: 'love',
-	cry: 'sadness',
-	crying: 'sadness',
-	cuddle: 'hugging',
-	depressed: 'sadness',
-	disappointed: 'dissatisfaction',
-	displeased: 'dissatisfaction',
-	doggo: 'dog',
-	enemy: 'enemies',
-	excited: 'surprise',
-	face: 'faces',
-	fearful: 'fear',
-	foe: 'enemies',
-	friend: 'friends',
-	frustrated: 'dissatisfaction',
-	furious: 'anger',
-	glad: 'joy',
-	grim: 'dissatisfaction',
-	grumpy: 'dissatisfaction',
-	happy: 'joy',
-	hare: 'rabbit',
-	hello: 'greeting',
-	hi: 'greeting',
-	hiding: 'hiding',
-	hug: 'hugging',
-	hugged: 'hugging',
-	hungry: 'food',
-	ill: 'pain',
-	indifferent: 'indifference',
-	kitten: 'cat',
-	kitty: 'cat',
-	love: 'love',
-	loving: 'love',
-	mad: 'anger',
-	meh: 'indifference',
-	nap: 'sleeping',
-	nervous: 'fear',
-	nope: 'doubt',
-	painful: 'pain',
-	puzzled: 'confusion',
-	puppy: 'dog',
-	rage: 'anger',
-	sad: 'sadness',
-	rub: 'hugging',
-	scared: 'fear',
-	shocked: 'surprise',
-	shy: 'embarrassment',
-	sleep: 'sleeping',
-	sleepy: 'sleeping',
-	sorry: 'apologizing',
-	sprinted: 'running',
-	surprised: 'surprise',
-	tired: 'sleeping',
-	unique: 'special',
-	unkind: 'enemies',
-	wave: 'greeting',
-	weary: 'sleeping',
-	wink: 'winking',
-	wizard: 'magic',
-	woah: 'surprise',
-	wow: 'surprise',
-	write: 'writing'
-};
 
 const normalize = (value) =>
 	String(value ?? '')
@@ -93,7 +15,7 @@ for (const mood of canonicalMoods) {
 	searchableTerms.push({ mood, label: mood });
 }
 
-for (const [alias, mood] of Object.entries(aliasToMood)) {
+for (const [alias, mood] of Object.entries(aliasesData)) {
 	if (kaomojis[mood]) {
 		moodTerms.set(normalize(alias), mood);
 		searchableTerms.push({ mood, label: alias });
