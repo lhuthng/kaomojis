@@ -98,11 +98,11 @@ function collectGroupTerms(sourceCategory, payloadAliases, payloadMeta) {
 }
 
 function resolveCanonicalCategory(groupTerms, existingAliases) {
-	const canonicalMatches = groupTerms
-		.map((term) => existingAliases[term])
-		.filter(Boolean);
+	const matches = groupTerms
+		.map((term) => ({ term, canonical: existingAliases[term] }))
+		.filter((match) => Boolean(match.canonical));
 
-	if (canonicalMatches.length === 0) {
+	if (matches.length === 0) {
 		return {
 			canonical: groupTerms[0],
 			matchedBy: null,
@@ -110,9 +110,11 @@ function resolveCanonicalCategory(groupTerms, existingAliases) {
 		};
 	}
 
-	const canonical = canonicalMatches[0];
-	const conflicts = canonicalMatches.filter((match) => match !== canonical);
-	const matchedBy = groupTerms.find((term) => existingAliases[term] === canonical) ?? null;
+	const canonical = matches[0].canonical;
+	const conflicts = matches
+		.filter((match) => match.canonical !== canonical)
+		.map((match) => ({ term: match.term, canonical: match.canonical }));
+	const matchedBy = matches[0].term;
 
 	return { canonical, matchedBy, conflicts };
 }
@@ -162,8 +164,18 @@ async function main() {
 			canonicalCategories[canonical] = [...merged];
 
 			const addedAliases = [];
+			const preservedAliases = [];
 			for (const term of groupTerms) {
 				if (term === canonical) continue;
+
+				if (canonicalAliases[term] && canonicalAliases[term] !== canonical) {
+					preservedAliases.push({
+						term,
+						canonical: canonicalAliases[term]
+					});
+					continue;
+				}
+
 				if (canonicalAliases[term] !== canonical) {
 					canonicalAliases[term] = canonical;
 					addedAliases.push(term);
@@ -177,12 +189,13 @@ async function main() {
 				canonical,
 				matchedBy,
 				conflicts,
+				preservedAliases,
 				addedAliases,
 				totalKaomojis: kaomojis.length
 			});
 
 			console.error(
-				`  ${sourceCategory} -> ${canonical}: ${kaomojis.length} kaomoji, ${addedAliases.length} alias updates`
+				`  ${sourceCategory} -> ${canonical}: ${kaomojis.length} kaomoji, ${addedAliases.length} alias updates, ${preservedAliases.length} preserved conflicts`
 			);
 		}
 	}

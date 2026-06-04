@@ -12,20 +12,28 @@ const searchableTerms = [];
 
 for (const mood of canonicalMoods) {
 	moodTerms.set(normalize(mood), mood);
-	searchableTerms.push({ mood, label: mood });
+	searchableTerms.push({
+		mood,
+		label: mood,
+		normalizedLabel: normalize(mood),
+		length: normalize(mood).length
+	});
 }
 
 for (const [alias, mood] of Object.entries(aliasesData)) {
 	if (kaomojis[mood]) {
-		moodTerms.set(normalize(alias), mood);
-		searchableTerms.push({ mood, label: alias });
+		const normalizedAlias = normalize(alias);
+		moodTerms.set(normalizedAlias, mood);
+		searchableTerms.push({
+			mood,
+			label: alias,
+			normalizedLabel: normalizedAlias,
+			length: normalizedAlias.length
+		});
 	}
 }
 
-export const maxMoodLength = Math.max(
-	...searchableTerms.map((term) => normalize(term.label).length),
-	0
-);
+export const maxMoodLength = Math.max(...searchableTerms.map((term) => term.length), 0);
 
 export function normalizeMood(value) {
 	return normalize(value);
@@ -62,12 +70,11 @@ export function getSuggestions(mood, allMoods, limit = 5) {
 	for (const term of searchableTerms) {
 		if (!allowedMoods.has(term.mood)) continue;
 
-		const candidate = normalize(term.label);
-		const distance = levenshtein(input, candidate);
-		const similarity = 1 - distance / Math.max(input.length, candidate.length, 1);
-		const prefixMatch = candidate.startsWith(input);
-		const reversePrefixMatch = input.startsWith(candidate);
-		const exactMatch = candidate === input;
+		const distance = levenshtein(input, term.normalizedLabel);
+		const similarity = 1 - distance / Math.max(input.length, term.length, 1);
+		const prefixMatch = term.normalizedLabel.startsWith(input);
+		const reversePrefixMatch = input.startsWith(term.normalizedLabel);
+		const exactMatch = term.normalizedLabel === input;
 
 		let score = similarity;
 		if (prefixMatch) score += 0.35;
@@ -80,7 +87,7 @@ export function getSuggestions(mood, allMoods, limit = 5) {
 			label: term.label,
 			score,
 			prefixMatch,
-			length: candidate.length
+			length: term.length
 		};
 
 		if (
