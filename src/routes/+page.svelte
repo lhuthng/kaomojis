@@ -71,6 +71,23 @@
 			aliases like /happy, /sad, and /sleepy work too<br />
 			because sometimes words just aren't enough {@render kaomoji('(´；ω；｀)', 'text-cream')}
 		</p>
+		<div class="mb-8 flex flex-wrap items-center gap-3 text-xs font-['Space_Mono']">
+			<a
+				href="https://kaomoji-search.netlify.app"
+				target="_blank"
+				class="rounded-full border border-accent-green-light-2/25 bg-dark px-3 py-1.5 text-accent-green-light-1 no-underline transition-colors hover:border-accent-green-light-1/60"
+				>live demo</a
+			>
+			<span class="rounded-full border border-dark-light-2 bg-dark-light-1 px-3 py-1.5 text-gray-400"
+				>api status: live</span
+			>
+			<a
+				href="https://kaomoji-search.netlify.app/joy?page=1&limit=5"
+				target="_blank"
+				class="rounded-full border border-dark-light-2 bg-dark-light-1 px-3 py-1.5 text-gray-400 no-underline transition-colors hover:border-accent-green-light-1/40 hover:text-accent-green-light-1"
+				>try a request</a
+			>
+		</div>
 		<div class="flex flex-wrap items-center gap-8">
 			{@render stat(total > 0 ? total.toLocaleString() : '...', 'kaomoji')}
 			<span class="-mt-2 text-2xl text-dark-light-3"
@@ -101,21 +118,26 @@
 				)}
 			</p>
 
-			<div class="mb-4 space-y-2">
-				{#each ['/:mood', '/:mood?page=1&limit=20'] as ep}
-					<div class="flex items-center gap-3">
-						<span
-							class="rounded-sm border border-accent-green-light-2/20 px-2 py-0.5 text-xs font-bold text-accent-green-light-1"
-							>GET</span
-						>
-						<code class="text-sm text-cream-2">{ep}</code>
-					</div>
-				{/each}
-			</div>
+				<div class="mb-4 space-y-2">
+					{#each [
+						['/joy', 'canonical mood'],
+						['/happy', 'alias resolution'],
+						['/joy?page=1&limit=5', 'paginated results']
+					] as [ep, label]}
+						<div class="flex items-center gap-3">
+							<span
+								class="rounded-sm border border-accent-green-light-2/20 px-2 py-0.5 text-xs font-bold text-accent-green-light-1"
+								>GET</span
+							>
+							<code class="text-sm text-cream-2">{ep}</code>
+							<span class="text-xs text-gray-500">{label}</span>
+						</div>
+					{/each}
+				</div>
 
 			{@render codeblock(
 				'example request',
-				`fetch('/happy')
+				`fetch('/joy?page=1&limit=5')
   .then(r => r.json())
   .then(console.log)`
 			)}
@@ -124,10 +146,21 @@
 				'example response',
 				`{
   "mood": "joy",
-  "results": ["(◠‿◠)", "٩(◕‿◕)۶", "ヽ(\`▽\`)/"],
-  "total": 94,
+  "results": ["(* ^ ω ^)", "(´ ∀ \` *)", "٩(◕‿◕｡)۶", "☆*:.｡.o(≧▽≦)o.｡.:*☆", "(o^▽^o)"],
+  "total": 134,
   "page": 1,
-  "limit": 20
+  "limit": 5,
+  "pagination": {
+    "page": 1,
+    "limit": 5,
+    "total": 134,
+    "totalPages": 27,
+    "count": 5,
+    "hasNextPage": true,
+    "hasPreviousPage": false,
+    "nextPage": 2,
+    "previousPage": null
+  }
 }`
 			)}
 		</section>
@@ -144,8 +177,8 @@
 			<p class="mb-4 text-sm leading-relaxed text-gray-400">
 				two optional query params, nothing else {@render kaomoji('(￣▽￣)', 'text-accent-green')}
 			</p>
-			<table class="w-full border-collapse text-sm">
-				<thead>
+				<table class="w-full border-collapse text-sm">
+					<thead>
 					<tr class="border-b border-dark-light-2 text-xs tracking-widest text-gray-600 uppercase">
 						<th class="pr-8 pb-2 text-left font-normal">param</th>
 						<th class="pr-8 pb-2 text-left font-normal">default</th>
@@ -169,9 +202,61 @@
 							<td class="py-2.5">{desc}</td>
 						</tr>
 					{/each}
-				</tbody>
-			</table>
-		</section>
+					</tbody>
+				</table>
+				<div class="mt-5 rounded border border-dark-light-2 bg-dark-light-1 p-4 text-sm text-gray-400">
+					<p class="mb-2 font-['Space_Mono'] text-xs tracking-widest text-accent-green-light-1 uppercase">
+						response schema
+					</p>
+					<p class="mb-3">
+						Every successful response includes `mood`, `results`, `total`, `page`, `limit`, and
+						`pagination`.
+					</p>
+					<div class="overflow-x-auto">
+						<table class="w-full border-collapse text-left text-xs">
+							<thead>
+								<tr class="border-b border-dark-light-2 text-gray-600 uppercase">
+									<th class="py-2 pr-4 font-normal">field</th>
+									<th class="py-2 pr-4 font-normal">type</th>
+									<th class="py-2 font-normal">description</th>
+								</tr>
+							</thead>
+							<tbody class="text-gray-400">
+								<tr class="border-b border-dashed border-dark">
+									<td class="py-2 pr-4 text-cream-2"><code>mood</code></td>
+									<td class="py-2 pr-4"><code>string</code></td>
+									<td class="py-2">Canonical mood returned by the API.</td>
+								</tr>
+								<tr class="border-b border-dashed border-dark">
+									<td class="py-2 pr-4 text-cream-2"><code>results</code></td>
+									<td class="py-2 pr-4"><code>string[]</code></td>
+									<td class="py-2">Current page of kaomojis for that mood.</td>
+								</tr>
+								<tr class="border-b border-dashed border-dark">
+									<td class="py-2 pr-4 text-cream-2"><code>total</code></td>
+									<td class="py-2 pr-4"><code>number</code></td>
+									<td class="py-2">Total kaomojis available for the mood.</td>
+								</tr>
+								<tr class="border-b border-dashed border-dark">
+									<td class="py-2 pr-4 text-cream-2"><code>page</code></td>
+									<td class="py-2 pr-4"><code>number</code></td>
+									<td class="py-2">1-based page number that was requested.</td>
+								</tr>
+								<tr class="border-b border-dashed border-dark">
+									<td class="py-2 pr-4 text-cream-2"><code>limit</code></td>
+									<td class="py-2 pr-4"><code>number</code></td>
+									<td class="py-2">Requested page size, capped at 100.</td>
+								</tr>
+								<tr>
+									<td class="py-2 pr-4 text-cream-2"><code>pagination</code></td>
+									<td class="py-2 pr-4"><code>object</code></td>
+									<td class="py-2">Derived paging metadata for clients and UIs.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
 
 		<section>
 			<h2

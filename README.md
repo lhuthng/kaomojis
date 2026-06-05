@@ -4,6 +4,8 @@ Tiny SvelteKit app that serves a searchable kaomoji dataset as JSON.
 
 Live version: https://kaomoji-search.netlify.app/
 
+API status: live
+
 ## What this repo does
 
 - Serves mood-based kaomoji JSON from the route `/:mood`
@@ -21,6 +23,14 @@ Base URL:
 https://kaomoji-search.netlify.app
 ```
 
+Try it:
+
+```txt
+https://kaomoji-search.netlify.app/joy
+https://kaomoji-search.netlify.app/happy
+https://kaomoji-search.netlify.app/joy?page=1&limit=5
+```
+
 Route:
 
 ```txt
@@ -33,6 +43,11 @@ Optional query params:
 | ------- | ------- | ------------------------ |
 | `page`  | `1`     | Result page to return    |
 | `limit` | `20`    | Number of items per page |
+
+`limit` is capped at `100` to keep responses predictable.
+
+Invalid `page` or `limit` values return `400`, unknown moods return `404`, and
+abusive traffic returns `429`.
 
 Example request:
 
@@ -48,9 +63,45 @@ Example response:
 	"results": ["(* ^ ω ^)", "(´ ∀ ` *)", "٩(◕‿◕｡)۶", "☆*:.｡.o(≧▽≦)o.｡.:*☆", "(o^▽^o)"],
 	"total": 41,
 	"page": 1,
-	"limit": 5
+	"limit": 5,
+	"pagination": {
+		"page": 1,
+		"limit": 5,
+		"total": 41,
+		"totalPages": 9,
+		"count": 5,
+		"hasNextPage": true,
+		"hasPreviousPage": false,
+		"nextPage": 2,
+		"previousPage": null
+	}
 }
 ```
+
+Response schema:
+
+| Field        | Type        | Description                                      |
+| ------------ | ----------- | ------------------------------------------------ |
+| `mood`       | `string`    | Canonical mood returned by the API               |
+| `results`    | `string[]`  | Current page of kaomojis for that mood           |
+| `total`      | `number`    | Total kaomojis available for the mood            |
+| `page`       | `number`    | 1-based page number that was requested           |
+| `limit`      | `number`    | Requested page size, capped at `100`             |
+| `pagination` | `object`    | Derived paging metadata for clients and UIs      |
+
+`pagination` contains:
+
+| Field            | Type      | Description                          |
+| ----------------- | --------- | ------------------------------------ |
+| `page`            | `number`  | 1-based page number                 |
+| `limit`           | `number`  | Page size used for the response     |
+| `total`           | `number`  | Total number of kaomojis            |
+| `totalPages`      | `number`  | Total number of pages               |
+| `count`           | `number`  | Number of results returned          |
+| `hasNextPage`     | `boolean` | Whether another page exists        |
+| `hasPreviousPage` | `boolean` | Whether a previous page exists     |
+| `nextPage`        | `number?` | Next page number or `null`          |
+| `previousPage`    | `number?` | Previous page number or `null`      |
 
 If a mood does not exist, the route returns a 404. If the input loosely matches
 known moods or supported aliases — by prefix or similarity — the response includes up to 5 suggestions:
@@ -219,8 +270,8 @@ bun run organize -- --help
 `src/lib/kaomojis/index.js` imports every JSON file eagerly and builds an object keyed by filename.
 
 `src/routes/[mood]/+server.js` reads `params.mood`, resolves aliases like `happy`
-or `sleepy` to their canonical mood using `src/lib/kaomojis/aliases.json`, slices
-the array using `page` and `limit`, and returns JSON in this shape:
+or `sleepy` to their canonical mood using `src/lib/kaomojis/aliases.json`, validates
+`page` and `limit`, slices the array, and returns JSON in this shape:
 
 ```json
 {
@@ -228,7 +279,18 @@ the array using `page` and `limit`, and returns JSON in this shape:
 	"results": [],
 	"total": 0,
 	"page": 1,
-	"limit": 20
+	"limit": 20,
+	"pagination": {
+		"page": 1,
+		"limit": 20,
+		"total": 0,
+		"totalPages": 0,
+		"count": 0,
+		"hasNextPage": false,
+		"hasPreviousPage": false,
+		"nextPage": null,
+		"previousPage": null
+	}
 }
 ```
 
